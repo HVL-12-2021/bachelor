@@ -152,6 +152,35 @@ export async function getVendorFromDb(vendorId: string): Promise<Vendor> {
     };
 }
 
+export async function getSingleVendorFromDb(): Promise<Vendor | null> {
+    let params = {
+        TableName: settings.TABLENAME,
+        IndexName: "GSI1",
+        Limit: 1,
+        KeyConditionExpression: "#GSI1_pk = :vendor and begins_with(#GSI1_sk, :prefix)",
+        ExpressionAttributeNames: {
+            "#GSI1_pk": "GSI1_pk",
+            "#GSI1_sk": "GSI1_sk"
+        },
+        ExpressionAttributeValues: {
+            ":vendor": "vendor",
+            ":prefix": "v#"
+        }
+    };
+    let dbResult = await documentClient.query(params).promise();
+    if (dbResult.Items.length == 0) {
+        return null;
+    }
+    return {
+        company: dbResult.Items[0].company,
+        fullname: dbResult.Items[0].fullname,
+        address: dbResult.Items[0].address,
+        phone: dbResult.Items[0].phone,
+        email: dbResult.Items[0].email,
+        schedule: dbResult.Items[0].schedule
+    };
+}
+
 export async function putVendorInDb(vendor: Vendor, vendorId: string): Promise<Vendor> {
     let params = {
         TableName: settings.TABLENAME,

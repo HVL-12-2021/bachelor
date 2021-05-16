@@ -1,4 +1,3 @@
-import 'source-map-support/register'
 import { Delivery, MenuItems, WeekTime } from '../server/src/interfaces';
 import { getDeliveryDates } from './timeHandling'
 import { getSubscriptionsForUser } from '../server/src/dbUtils'
