@@ -445,6 +445,7 @@ export async function getUsersDeliveries(userId: string, startDate: string, endD
 
     let deliveries = dbResult.Items.map((del) => {
         return {
+            vendorId: del.pk.substr(2),
             userId,
             deliverytime: del.deliverytime,
             menuId: del.menuId,
