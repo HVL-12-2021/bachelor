@@ -3,7 +3,7 @@ import 'source-map-support/register';
 import { expect } from 'chai';
 import 'mocha';
 import { WeekTime } from '../../interfaces'
-import { nextDeliveryDate, toWeekTime, noOfDeliveriesInMonth, getDeliveryDates } from '../../timeHandling'
+import { nextDeliveryDate, toWeekTime, noOfDeliveriesInMonth, getDeliveryDates } from '../../../../common/timeHandling'
 
 describe('Date and time tests', () => {
     it('From date to WeekTime',  () => {

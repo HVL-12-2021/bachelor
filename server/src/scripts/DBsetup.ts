@@ -2,7 +2,7 @@ require('dotenv').config();
 import 'source-map-support/register';
 import { putSubscriptionInDb, putUserprofileInDb, putVendorInDb, saveDeliveriesToDb } from '../dbUtils';
 import {dbUser1, dbUser2, dbUser3, dbUser4, dbUser5, dbVendor} from '../../../common/settings'
-import { generateDeliveries } from './../addDeliveries';
+import { generateDeliveries } from '../../../common/addDeliveries';
 
 const userprofile1 = {
     fullname: "Ole Olsen",
