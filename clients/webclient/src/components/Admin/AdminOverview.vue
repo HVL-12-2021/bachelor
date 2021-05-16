@@ -46,7 +46,7 @@ import Vue from 'vue';
 import Component from 'vue-class-component';
 import Deliveries from './Deliveries.vue'
 import  api from "../../api/api";
-import {Delivery, Userprofile} from '../../../../../server/src/interfaces'
+import {Userprofile} from '../../../../../server/src/interfaces'
 import { Prop } from 'vue-property-decorator';
 
 @Component({
@@ -64,9 +64,6 @@ export default class AdminOverview extends Vue {
     private events: any[] = [];
     private showList = false;
     private selectedDate = "";
-    private selectedEvent = {};
-    private selectedElement = null;
-    private selectedOpen = false;
 
     mounted() {
 		this.focus = "";
@@ -98,7 +95,7 @@ export default class AdminOverview extends Vue {
         if (this.start && this.end) {
             let deliveries = await api.getAllVendorsDeliveriesSummary(this.start.date, this.end.date);
             if (deliveries) {
-                deliveries.forEach((del: any) => {
+                deliveries.forEach(del => {
                     const delStart = new Date(`${del.date.substring(0,10)}T00:00:00`);
                     const delEnd = new Date(`${del.date.substring(0,10)}T23:59:59`);
                     const menu = schedule.find(({id}) => id == del.menuId);

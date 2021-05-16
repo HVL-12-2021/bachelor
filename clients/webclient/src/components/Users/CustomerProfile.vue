@@ -193,21 +193,25 @@ export default class CustomerProfile extends Vue {
 
     async toggleSubscriptionPause() {
         this.dialog = false;
-        let sub = await api.getUserSubscription(this.subscription.vendorId);
-        this.subscription.paused = !this.subscription.paused;
-        sub.paused = this.subscription.paused;
-        await api.putUserSubscription(sub);
+        if (this.subscription) {
+            let sub = await api.getUserSubscription(this.subscription.vendorId);
+            if (sub) {
+                this.subscription.paused = !this.subscription.paused;
+                sub.paused = this.subscription.paused;
+                await api.putUserSubscription(sub);
+            }
+        }
     }
 
     get buttonText() {
-        if (this.subscription.paused) {
+        if (this.subscription?.paused) {
             return "Aktiver abonnement";
         } 
         return "Pause abonnement";
     }
 
     get dialogText() {
-        if (this.subscription.paused) {
+        if (this.subscription?.paused) {
             return "Du aktiverer nå ditt abonnement igjen";
         } 
         return "Du setter nå ditt abonnement på pause";

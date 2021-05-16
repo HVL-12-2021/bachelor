@@ -69,7 +69,6 @@ import { Delivery, Userprofile } from "../../../../../server/src/interfaces";
 
 @Component({})
 export default class CustomerOverview extends Vue {
-    private loading = false;
 	@Prop() userprofile!: Userprofile;
     private today = new Date().toISOString().substr(0, 10);
     private focus = new Date().toISOString().substr(0, 10);
@@ -80,7 +79,6 @@ export default class CustomerOverview extends Vue {
     private showCard = false;
     private selectedEvent:any = null;
     private selectedDate = "";
-    private dialog: boolean = false;
 
     mounted() {
         this.focus = "";

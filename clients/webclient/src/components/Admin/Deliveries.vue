@@ -88,8 +88,10 @@ export default class Deliveries extends Vue {
                 handle: ".handle",
                 animation: 150,
                 onEnd({newIndex, oldIndex}) {
-                    const rowSelected = _self.deliveryDetails.splice(oldIndex!, 1)[0];
-                    _self.deliveryDetails.splice(newIndex!, 0, rowSelected);
+                    if (oldIndex != undefined && newIndex != undefined) {
+                        const rowSelected = _self.deliveryDetails.splice(oldIndex, 1)[0];
+                        _self.deliveryDetails.splice(newIndex, 0, rowSelected);
+                    }
                 }
             });
         }

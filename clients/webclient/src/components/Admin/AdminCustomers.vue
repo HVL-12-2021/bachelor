@@ -155,7 +155,8 @@ export default class AdminCustomers extends Vue {
             await api.updateApproval(item.userId, true);
             item.approved = true;
         } catch (err) {
-            console.log(err)    // Lag dialogboks her.
+            alert("Noe gikk galt, prøv igjen senere.");
+            console.log(err);
         }
     }
 }
