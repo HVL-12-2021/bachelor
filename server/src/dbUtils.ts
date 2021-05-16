@@ -1,7 +1,7 @@
 import 'source-map-support/register'
 import { DynamoDB } from 'aws-sdk';
 import { DocumentClient } from 'aws-sdk/clients/dynamodb';
-import { Subscription, UserSubscription, Userprofile, Delivery, Vendor, VendorSubscription, Summary, MenuItems } from './interfaces';
+import { Subscription, UserSubscription, Userprofile, Delivery, Vendor, VendorSubscription, Summary, MenuItems, DeliveryDetail } from './interfaces';
 import * as settings from '../../common/settings';
 
 const database = new DynamoDB({ region: settings.REGION });
@@ -621,7 +621,7 @@ export async function saveDeliveriesToDb(deliveries: Delivery[]): Promise<void> 
     }
 }
 
-export async function getAllDeliveriesFromAllSubscribers(vendorId: string, startTime: string, endTime: string): Promise<Delivery[] | Summary[]> {
+export async function getAllDeliveriesFromAllSubscribers(vendorId: string, startTime: string, endTime: string): Promise<Delivery[]> {
     let endDate = new Date(endTime);
     endDate.setDate(endDate.getDate() + 1);
     let nextDay = endDate.toISOString().substr(0, 10);
@@ -682,3 +682,55 @@ export async function findLatestDelivery(vendorId: string, userId: string):Promi
         cancelled: dbResult.Items[0].cancelled
     }
 } 
+
+export async function getDeliveryDetails(vendorId: string, startDate: string, endDate: string): Promise<DeliveryDetail[]> {
+    const deliveries = await getAllDeliveriesFromAllSubscribers(vendorId, startDate, endDate);
+    const userSubscriptions = await getSubscriptionsForVendor(vendorId);
+    const deliveryDetails: DeliveryDetail[] = [];
+    deliveries.forEach( del => {
+        let sub = userSubscriptions!.find(({userId}) => userId == del.userId);
+        if (sub) {
+            const deliveryDetail: DeliveryDetail = {
+                ...del,
+                paused: sub.paused,
+                noOfMeals: sub.noOfMeals,
+                box: sub.box,
+                fullname: sub.fullname,
+                address: sub.address,
+                phone: sub.phone,
+                email: sub.email, 
+                allergies: sub.allergies
+            }
+            deliveryDetails.push(deliveryDetail);
+        }
+    });
+    return deliveryDetails;
+}
+export async function cancelDeliveries(userId: string, deliveries: Delivery[]) {
+    const promises = [];
+    for (let delivery of deliveries) {
+        if (delivery.userId == userId || delivery.vendorId == userId) {
+            promises.push(cancelDelivery(delivery));
+        } else {
+            console.log("UserId " + userId + " tried to delete delivery that they do not own.")
+        }
+    }
+    await Promise.all(promises);
+}
+
+function cancelDelivery(delivery:Delivery) {
+    let UpdateExpression = "set cancelled = :cancelled";
+        let ExpressionAttributeValues: any = {
+        ":cancelled": { BOOL: true }
+        }; 
+        const params = {
+            TableName: settings.TABLENAME,
+            Key: {
+                "pk": { S: "v#" + delivery.vendorId },
+                "sk": { S: "d#" + delivery.deliverytime + "#u#" + delivery.userId }
+            },
+            UpdateExpression,
+            ExpressionAttributeValues
+        };
+        return database.updateItem(params).promise();
+}

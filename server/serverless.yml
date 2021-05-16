@@ -125,6 +125,20 @@ functions:
           authorizer: authorizer
           path: /unpaidDeliveries
           method: get
+  deliveryDetails:
+    handler: src/deliveryDetails.mainHandler
+    events:
+      - http:
+          authorizer: authorizer
+          path: /v/deliveryDetails
+          method: get
+  cancelDeliveries:
+    handler: src/cancelDeliveries.mainHandler
+    events:
+      - http:
+          authorizer: authorizer
+          path: /cancelDeliveries
+          method: post
 
 resources:
   Resources:

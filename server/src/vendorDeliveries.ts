@@ -75,7 +75,7 @@ async function getVendorDeliveries(event: APIGatewayProxyEvent): Promise<APIGate
         body: JSON.stringify(deliveries)
     };
 }
-function generateSummary(deliveries: Delivery[] | Summary[]) {
+function generateSummary(deliveries: Delivery[]):Summary[] {
     let hash = new Map<string, Summary>();
     deliveries.forEach((del) => {
         let summary = hash.get(del.deliverytime);
@@ -83,11 +83,15 @@ function generateSummary(deliveries: Delivery[] | Summary[]) {
             summary = {
                 menuId: del.menuId,
                 date: del.deliverytime,
-                count: 0
+                count: 0,
+                cancelled: 0
             }
             hash.set(del.deliverytime, summary);
         }
         summary.count++;
+        if (del.cancelled) {
+            summary.cancelled++;
+        }
     });
     let array = [];
     for (let k of hash) {

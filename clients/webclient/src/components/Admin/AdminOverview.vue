@@ -35,10 +35,7 @@
 			</v-sheet>
 		</v-col>
         <v-col>
-            <v-card v-if="showList">
-                <v-card-title>Dagens leveringer</v-card-title>
-                <Deliveries :date="selectedDate"/>
-            </v-card>
+            <Deliveries v-if="showList" :date="selectedDate" @update="deliveriesUpdated" />
         </v-col>
 	</v-row>
     </main>
@@ -62,8 +59,8 @@ export default class AdminOverview extends Vue {
     private today = new Date().toISOString().substr(0, 10);
 	private focus = new Date().toISOString().substr(0, 10);
 	private type = "month";
-	private start = null;
-	private end = null;
+	private start: any | null = null;
+	private end: any | null = null;
     private events: any[] = [];
     private showList = false;
     private selectedDate = "";
@@ -87,30 +84,34 @@ export default class AdminOverview extends Vue {
 	next() {
 		(this.$refs.calendar as any).next();
 	}
-	updateRange(range: any) {
-		this.start = range.start;
-		this.end = range.end;
-	}
 
     async getEvents( {start, end}:{start:any, end:any} ) {
+        this.start = start;
+		this.end = end;
+        this.populateCalendar();
+    }
+
+    async populateCalendar() {
         const vendor = await api.getVendor(this.userprofile!.email);
         let schedule = vendor!.schedule;
         let events: any[] = [];
-        let deliveries = await api.getAllVendorsDeliveriesSummary(start.date, end.date);
-        if (deliveries) {
-            deliveries.forEach((del: any) => {
-                const delStart = new Date(`${del.date.substring(0,10)}T00:00:00`);
-                const delEnd = new Date(`${del.date.substring(0,10)}T23:59:59`);
-                const menu = schedule.find(({id}) => id == del.menuId);
+        if (this.start && this.end) {
+            let deliveries = await api.getAllVendorsDeliveriesSummary(this.start.date, this.end.date);
+            if (deliveries) {
+                deliveries.forEach((del: any) => {
+                    const delStart = new Date(`${del.date.substring(0,10)}T00:00:00`);
+                    const delEnd = new Date(`${del.date.substring(0,10)}T23:59:59`);
+                    const menu = schedule.find(({id}) => id == del.menuId);
 
-                events.push({
-                    name: menu!.menu,
-                    start: delStart,
-                    end: delEnd, 
-                    color: "green"
+                    events.push({
+                        name: menu!.menu + ": " + (del.count-del.cancelled) + "/" + del.count,
+                        start: delStart,
+                        end: delEnd, 
+                        color: (del.count == del.cancelled)? "grey" : "green" 
+                    });
                 });
-            });
-            this.events = events;
+                this.events = events;
+            }
         }
     }
 
@@ -119,17 +120,8 @@ export default class AdminOverview extends Vue {
         this.showList = true;
     }
 
-    async cancelDelivery(event:any) {
-        this.selectedDate = event.day.date;
-        let deliveries = await api.getAllVendorsDeliveries(this.selectedDate, this.selectedDate);
-        if (deliveries) {
-            deliveries!.forEach((del: any) => {
-                del.cancelled = true;
-            });
-            await api.updateDeliveries(deliveries as Delivery[]);
-        }
-        let cancelledEvent = this.events.find(({start}) => start == this.selectedDate);
-        cancelledEvent.color = "grey";
+    deliveriesUpdated() {
+        this.populateCalendar();
     }
 }
 </script>

@@ -54,6 +54,17 @@ export interface Delivery {
     cancelled: boolean
 }
 
+export interface DeliveryDetail extends Delivery {
+    paused: boolean,
+    noOfMeals: number,
+    box: string,
+    fullname: string,
+    address: string,
+    phone: string,
+    email: string, 
+    allergies: string[]
+}
+
 export interface Vendor {
     company: string,
     fullname: string,
@@ -84,5 +95,6 @@ export interface DateWithMenuId {
 export interface Summary {
     menuId: string,
     date: string,
-    count: number
+    count: number, 
+    cancelled: number
 }

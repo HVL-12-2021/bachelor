@@ -276,6 +276,18 @@ export class Api {
         const response = await this.apiAxios.get(url);
         return parseInt(response.data.no);
     }
+    
+    async getDeliveryDetails(start: string, end: string): Promise<interfaces.DeliveryDetail[]> {
+        await this.ensureFreshToken();
+        const response = await this.apiAxios.get(urlPrefix + "/v/deliveryDetails?start=" + start + "&end=" + end);
+        return response.data;
+    }
+
+    async cancelDeliveries(deliveries: interfaces.Delivery[]): Promise<boolean> {
+        await this.ensureFreshToken();
+        const response = await this.apiAxios.post(urlPrefix + "/cancelDeliveries", deliveries);
+        return response.status == 200;
+    }
 }
 let api = new Api();
 export default api;
