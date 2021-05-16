@@ -91,7 +91,12 @@ export class Api {
         await this.apiAxios.delete(url);
     }
 
-    // TODO: Lag en funksjon for å hente liste av vendors når tilhørende lambda er implementert.
+    async getAllVendors(): Promise<interfaces.Vendor[] | null> {
+        await this.ensureFreshToken();
+        const vendors = await this.apiAxios.get(urlPrefix + "/vendors");
+        return vendors.data;
+
+    }
 
     async getVendorSubscriptions(): Promise<interfaces.UserSubscription[]> {
         await this.ensureFreshToken();
@@ -213,7 +218,7 @@ export class Api {
 
     async updateDeliveries(deliveries:interfaces.Delivery[]): Promise<interfaces.Delivery[]> {
         await this.ensureFreshToken();
-        let changedDeliveries = await this.apiAxios.put(urlPrefix + "/v/deliveries");
+        let changedDeliveries = await this.apiAxios.put(urlPrefix + "/v/deliveries", deliveries);
         return changedDeliveries.data;
     }
 

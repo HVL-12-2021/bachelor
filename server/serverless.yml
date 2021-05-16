@@ -69,6 +69,13 @@ functions:
           path: /vendor
           method: any
           cors: true
+  vendors:
+    handler: src/vendors.mainHandler
+    events:
+      - http:
+          authorizer: authorizer
+          path: /vendors
+          method: get
   userSubscription:
     handler: src/userSubscription.mainHandler
     events:

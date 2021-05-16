@@ -66,6 +66,7 @@ export interface DeliveryDetail extends Delivery {
 }
 
 export interface Vendor {
+    vendorId?: string,
     company: string,
     fullname: string,
     address: string,

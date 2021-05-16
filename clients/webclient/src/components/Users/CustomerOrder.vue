@@ -92,7 +92,7 @@
                         filter
                         outlined
                     >
-                        {{ deliveryDay.menu }}
+                        {{ deliveryDay.day + " " + deliveryDay.menu }}
                     </v-chip>
                 </v-chip-group>
             </v-row>
@@ -166,8 +166,12 @@
             </v-row>
             <v-row>
                 <v-col>
-                    <v-btn @click="sendToDb" color="primary" class="ma-1">Send inn</v-btn>
-                    <v-btn @click="logout" color="secondary" class="ma-1">Avbryt</v-btn>
+                    <v-btn @click="sendToDb" color="primary" class="ma-1"
+                        >Send inn</v-btn
+                    >
+                    <v-btn @click="logout" color="secondary" class="ma-1"
+                        >Avbryt</v-btn
+                    >
                 </v-col>
             </v-row>
         </v-container>
@@ -179,11 +183,12 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop } from "vue-property-decorator";
 import api from "../../api/api";
-import * as interfaces from "../../../../../server/src/interfaces";
+import { MenuItems, Vendor} from "../../../../../server/src/interfaces";
 
 @Component
 export default class CustomerOrder extends Vue {
     @Prop() loggedInUser!: string;
+    private vendor: Vendor | null = null;
     private firstName = "";
     private lastName = "";
     private address = "";
@@ -200,24 +205,19 @@ export default class CustomerOrder extends Vue {
         { no: 7, selected: false },
         { no: 8, selected: false },
         { no: 9, selected: false },
-        { no: 10, selected: false }
+        { no: 10, selected: false },
     ];
     private selectedNoOfMeals = 1;
-    private deliveryDays = [
-        { id: "1", menu: "Tirsdag - lunsj", selected: false },
-        { id: "2", menu: "Onsdag - lunsj", selected: false },
-        { id: "3", menu: "Torsdag - fisk til lunsj", selected: false },
-        { id: "4", menu: "Torsdag - fisk til middag", selected: false }
-    ];
+    private deliveryDays: MenuItems[] = [];
     private selectedDeliveryDays = [];
     private deliveries = [
+        { type: "Abonnement (kr. 137 per levering)", selected: false },
         { type: "Ei enkelt levering 149 kr", selected: false },
-        { type: "Abonnement (kr. 137 per levering)", selected: false }
     ];
     private selectedDeliveries = [];
     private boxes = [
         { type: "Engangsboks", selected: false },
-        { type: "Gjenbruksbokser (depositum kr 218)", selected: false }
+        { type: "Gjenbruksbokser (depositum kr 218)", selected: false },
     ];
     private selectedBox = "";
     private allergies = [
@@ -234,7 +234,7 @@ export default class CustomerOrder extends Vue {
         { name: "Sesam", selected: false },
         { name: "Svovel", selected: false },
         { name: "Lupin", selected: false },
-        { name: "Bløtdyr", selected: false }
+        { name: "Bløtdyr", selected: false },
     ];
     private selectedAllergies = [];
     private add = "";
@@ -256,6 +256,14 @@ export default class CustomerOrder extends Vue {
         this.$emit("logout");
     }
 
+    async getVendor() {
+        let vendors = await api.getAllVendors();
+        this.vendor = vendors![0]
+        if (this.vendor) {
+            this.deliveryDays = this.vendor.schedule;
+        }
+    }
+
     async sendToDb() {
         let newUserprofile = {
             fullname: this.firstName + " " + this.lastName,
@@ -263,21 +271,25 @@ export default class CustomerOrder extends Vue {
             phone: this.phone.toString(),
             email: this.loggedInUser,
             allergies: this.selectedAllergies,
-            isVendor: false
+            isVendor: false,
         };
 
         let subscription = {
-            vendorId: "lunsj@hjul.no", // TODO: Hente valgt vendor sin id og schedule fra DB
+            vendorId: this.vendor!.vendorId!,
             userId: this.loggedInUser,
             approved: false,
             paused: false,
             schedule: this.selectedDeliveryDays,
             noOfMeals: this.selectedNoOfMeals,
-            box: this.selectedBox
+            box: this.selectedBox,
         };
         await api.putUserprofile(newUserprofile);
         await api.putUserSubscription(subscription);
         this.$emit("newUserprofile", newUserprofile);
+    }
+
+    async created() {
+        this.getVendor();
     }
 }
 </script>
