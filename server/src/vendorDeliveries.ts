@@ -4,7 +4,7 @@ import cors from '@middy/http-cors';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getAllDeliveriesFromAllSubscribers, getUserprofileFromDb, saveDeliveriesToDb, updateDeliveries } from './dbUtils'
 import { getUserInfoFromEvent } from './auth/getUserFromJwt'
-import { generateDeliveries } from '../../common/addDeliveries'
+import { generateDeliveries } from './addDeliveries'
 import { Delivery, Summary } from './interfaces';
 
 async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
