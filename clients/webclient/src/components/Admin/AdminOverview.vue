@@ -1,43 +1,43 @@
 <template>
     <main>
-	<v-row>
-		<v-col>
-			<v-sheet height="64">
-				<v-spacer />
-				<v-toolbar flat>
-					<v-btn outlined @click="setToday"> I dag </v-btn>
-					<v-btn fab text small @click="prev">
-						<v-icon small>mdi-chevron-left</v-icon>
-					</v-btn>
-					<v-btn fab text small @click="next">
-						<v-icon small>mdi-chevron-right</v-icon>
-					</v-btn>
-					<v-toolbar-title v-if="$refs.calendar">
-						{{ $refs.calendar.title }}
-					</v-toolbar-title>
-				</v-toolbar>
-			</v-sheet>
-            <v-spacer />
-			<v-sheet height="600">
-				<v-calendar
-					ref="calendar"
-					v-model="focus"
-					locale="no"
-					color="primary"
-					weekdays="1, 2, 3, 4, 5"
-                    show-week
-					:now="today"
-                    :events="events"
-                    @click:event="showDeliveries"
-					@change="getEvents"
-				>
-				</v-calendar>
-			</v-sheet>
-		</v-col>
-        <v-col>
-            <Deliveries v-if="showList" :date="selectedDate" @update="deliveriesUpdated" />
-        </v-col>
-	</v-row>
+        <v-row>
+            <v-col>
+                <v-sheet height="64">
+                    <v-spacer />
+                    <v-toolbar flat>
+                        <v-btn outlined @click="setToday"> I dag </v-btn>
+                        <v-btn fab text small @click="prev">
+                            <v-icon small>mdi-chevron-left</v-icon>
+                        </v-btn>
+                        <v-btn fab text small @click="next">
+                            <v-icon small>mdi-chevron-right</v-icon>
+                        </v-btn>
+                        <v-toolbar-title v-if="$refs.calendar">
+                            {{ $refs.calendar.title }}
+                        </v-toolbar-title>
+                    </v-toolbar>
+                </v-sheet>
+                <v-spacer />
+                <v-sheet height="600">
+                    <v-calendar
+                        ref="calendar"
+                        v-model="focus"
+                        locale="no"
+                        color="primary"
+                        weekdays="1, 2, 3, 4, 5"
+                        show-week
+                        :now="today"
+                        :events="events"
+                        @click:event="showDeliveries"
+                        @change="getEvents"
+                    >
+                    </v-calendar>
+                </v-sheet>
+            </v-col>
+            <v-col>
+                <Deliveries v-if="showList" :date="selectedDate" @update="deliveriesUpdated" />
+            </v-col>
+        </v-row>
     </main>
 </template>
 
